@@ -10,7 +10,7 @@ def rgb_to_hsl(img: np.ndarray) -> np.ndarray:
   G = img[:, :, 1]
   B = img[:, :, 2]
 
-  #Nuevamente se define un epsilon pensando en caso borde de imagen negra
+  # Se define un epsilon pensando en caso borde de imagen negra
   epsilon = 1e-10
 
   # Se definen los C y delta
@@ -72,3 +72,4 @@ def plot_hsl(hsl_img: np.ndarray):
     fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
   fig.tight_layout()
+  plt.show()

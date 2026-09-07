@@ -4,10 +4,14 @@ import matplotlib.pyplot as plt
 from skimage import data
 from skimage.io import imsave
 
+
+from RGB2HSL import rgb_to_hsl, plot_hsl 
+
 imagen_ejemplo = data.astronaut()
 
 
-test = skimage.color.rgb2hsv(imagen_ejemplo)
+test = rgb_to_hsl(imagen_ejemplo)
+plot_hsl(test)
 
 def color_saturation( img, h_i, m_i, param):
     """
