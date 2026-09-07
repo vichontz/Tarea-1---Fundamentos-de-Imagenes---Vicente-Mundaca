@@ -1,0 +1,24 @@
+import skimage
+import numpy as np
+import matplotlib.pyplot as plt
+from skimage import data
+from skimage.io import imsave
+
+imagen_ejemplo = data.astronaut()
+
+
+test = skimage.color.rgb2hsv(imagen_ejemplo)
+
+def color_saturation( img, h_i, m_i, param):
+    """
+    Función que ajusta la saturación de una imagen en el espacio de color param.
+    
+    Entradas:
+    img:        Imagen de entrada en formato RGB.
+    (h_i, m_i): Conjunto arbitrario de puntos de control.
+    param:      parámetro que selecciona el espacio de color utilizado (HSL, lch).
+    
+    Salidas:
+    img_saturada: Imagen con la saturación ajustada.
+    """
+    return
