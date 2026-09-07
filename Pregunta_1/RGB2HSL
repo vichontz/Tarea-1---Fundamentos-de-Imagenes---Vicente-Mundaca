@@ -1,3 +1,6 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
 def rgb_to_hsl(img: np.ndarray) -> np.ndarray:
 
   img = img.astype(np.float64)
