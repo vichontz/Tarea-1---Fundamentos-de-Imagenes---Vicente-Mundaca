@@ -6,12 +6,19 @@ from skimage.io import imsave
 
 
 from RGB2HSL import rgb_to_hsl, plot_hsl 
+from RGB2Lch import rgb_to_lch, plot_lch
+from interpolacion import interpolacion 
 
 imagen_ejemplo = data.astronaut()
+imagen_ejemplo2 = imagen_ejemplo.copy()
 
 
 test = rgb_to_hsl(imagen_ejemplo)
 plot_hsl(test)
+
+test2= rgb_to_lch(imagen_ejemplo2)
+plot_lch(test2)
+
 
 def color_saturation( img, h_i, m_i, param):
     """
@@ -26,3 +33,5 @@ def color_saturation( img, h_i, m_i, param):
     img_saturada: Imagen con la saturación ajustada.
     """
     return
+
+
