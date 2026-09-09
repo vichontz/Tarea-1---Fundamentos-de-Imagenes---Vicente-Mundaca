@@ -37,4 +37,4 @@ def plot_lch(lch_img: np.ndarray, figsize=(15, 5)):
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
     fig.tight_layout()
-    plt.show()
+    #plt.show()

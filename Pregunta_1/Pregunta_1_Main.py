@@ -7,7 +7,7 @@ from skimage.io import imsave
 
 from RGB2HSL import rgb_to_hsl, plot_hsl 
 from RGB2Lch import rgb_to_lch, plot_lch
-from interpolacion import interpolacion 
+
 
 imagen_ejemplo = data.astronaut()
 imagen_ejemplo2 = imagen_ejemplo.copy()

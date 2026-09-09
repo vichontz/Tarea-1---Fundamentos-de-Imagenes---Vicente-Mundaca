@@ -72,4 +72,4 @@ def plot_hsl(hsl_img: np.ndarray):
     fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
 
   fig.tight_layout()
-  plt.show()
+  #plt.show()
