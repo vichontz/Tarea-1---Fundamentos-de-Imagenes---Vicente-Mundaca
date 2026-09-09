@@ -38,3 +38,17 @@ def plot_lch(lch_img: np.ndarray, figsize=(15, 5)):
 
     fig.tight_layout()
     #plt.show()
+
+
+
+def lch_to_rgb(lch_img: np.ndarray) -> np.ndarray:
+ 
+  L = lch_img[:, :, 0]
+  C = lch_img[:, :, 1]
+  h = np.radians(lch_img[:, :, 2])
+
+  a = C * np.cos(h)
+  b = C * np.sin(h)
+
+  lab = np.stack([L, a, b], axis=-1)
+  return color.lab2rgb(lab)

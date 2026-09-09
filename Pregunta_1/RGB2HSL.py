@@ -73,3 +73,36 @@ def plot_hsl(hsl_img: np.ndarray):
 
   fig.tight_layout()
   #plt.show()
+
+
+def hsl_to_rgb(hsl_img: np.ndarray) -> np.ndarray:
+
+  H = hsl_img[:, :, 0] % 360.0
+  S = np.clip(hsl_img[:, :, 1], 0.0, 1.0)
+  L = np.clip(hsl_img[:, :, 2], 0.0, 1.0)
+
+  C = (1 - np.abs(2 * L - 1)) * S
+  Hp = H / 60.0
+  X = C * (1 - np.abs(Hp % 2 - 1))
+  m = L - C / 2.0
+
+  Rp = np.zeros_like(L)
+  Gp = np.zeros_like(L)
+  Bp = np.zeros_like(L)
+
+  mask0 = (Hp >= 0) & (Hp < 1)
+  mask1 = (Hp >= 1) & (Hp < 2)
+  mask2 = (Hp >= 2) & (Hp < 3)
+  mask3 = (Hp >= 3) & (Hp < 4)
+  mask4 = (Hp >= 4) & (Hp < 5)
+  mask5 = (Hp >= 5) & (Hp <= 6)
+
+  Rp[mask0], Gp[mask0], Bp[mask0] = C[mask0], X[mask0], 0.0
+  Rp[mask1], Gp[mask1], Bp[mask1] = X[mask1], C[mask1], 0.0
+  Rp[mask2], Gp[mask2], Bp[mask2] = 0.0, C[mask2], X[mask2]
+  Rp[mask3], Gp[mask3], Bp[mask3] = 0.0, X[mask3], C[mask3]
+  Rp[mask4], Gp[mask4], Bp[mask4] = X[mask4], 0.0, C[mask4]
+  Rp[mask5], Gp[mask5], Bp[mask5] = C[mask5], 0.0, X[mask5]
+
+  rgb_img = np.clip(np.stack([Rp + m, Gp + m, Bp + m], axis=-1), 0.0, 1.0)
+  return rgb_img
