@@ -1,9 +1,5 @@
-import skimage
-import numpy as np
-import matplotlib.pyplot as plt
-from skimage import data
-from skimage.io import imsave
 
+import numpy as np
 
 from RGB2HSL import rgb_to_hsl, hsl_to_rgb
 from RGB2Lch import rgb_to_lch, lch_to_rgb
