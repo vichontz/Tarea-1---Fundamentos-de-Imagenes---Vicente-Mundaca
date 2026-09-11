@@ -4,7 +4,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from skimage.io import imread
 from pathlib import Path
+
 from ColorSaturation import color_saturation
+from AnalisisP1_123 import graficar_curvas_mh
 
 img1_path = Path(__file__).resolve().parent / "P1_IMG_2402.tif"
 img1 = imread(img1_path)
@@ -13,6 +15,9 @@ img2_path = Path(__file__).resolve().parent / "img2.png"
 img2 = imread(img2_path)
 if img2.shape[-1] == 4:
     img2 = img2[:, :, :3] 
+
+
+
 
 # 4)        Explore sistemáticamente la amplitud y el rango de m, la posición y separación de los puntos de 
 #           control, y el número de puntos de control. Analice también cómo las decisiones adoptadas en 
