@@ -2,9 +2,7 @@
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
-import cv2
-from skimage import img_as_float
-from skimage.io import imsave, imread
+from skimage.io import imread
 from pathlib import Path
 from ColorSaturation import color_saturation
 
@@ -23,9 +21,9 @@ from ColorSaturation import color_saturation
 #240°: Azul 
 #300°: Magenta
 
-P_aumento =[(0, 1.0), (60, 3.0), (120, 2.5), (180, 1.0), (300, 1.0)]    # es decir amplifiquemos los amarillos y verdes y mantenenmos lo demas
+P_aumento =[(0, 1.0), (60, 4.0), (120, 2.5), (180, 1.0), (300, 1.0)]    # es decir amplifiquemos los amarillos y verdes y mantenenmos lo demas
 P_atenuacion = [(180, 1.0), (240, 0.1), (300, 1.0), (60, 0.2)]          # atenuamos los azules y amarillos, mantenemos lo demas
-P_mixto = [(0, 0.8), (60, 0.5), (120, 2.0), (180, 2.5), (300, 1.0)]     # aumentamos verdes y cianes, atenuamos rojos y amarillos, mantenemos  magentas
+P_mixto = [(0, 3.0), (60, 0.3), (120, 3.0), (180, 3.5),(240, 1.5)]     # aumentamos verdes y azules, atenuamos rojos y amarillos, mantenemos  magentas
 
 
 
@@ -62,8 +60,9 @@ fig, axes = plt.subplots(1, 3, figsize=(18, 5))
 graficar_curvas_mh(P_aumento, "Aumento Selectivo (Amarillos y Verdes)", axes[0])
 graficar_curvas_mh(P_atenuacion, "Atenuación Selectiva (Amarillos y Azules)", axes[1])
 graficar_curvas_mh(P_mixto, "Combinación Mixta", axes[2])
-plt.tight_layout()
-plt.show()
+
+#plt.tight_layout()     
+#plt.show()             Descomentar para ver la figura de las curvas de m(h)
 
 
 
@@ -109,8 +108,8 @@ axes[1, 1].imshow(img_mixto1)
 axes[1, 1].set_title("Combinación Mixta")
 axes[1, 1].axis("off")
 
-plt.tight_layout()
-plt.show()
+#plt.tight_layout()     
+#plt.show()             Descomentar para ver la figura de la imagen 1 procesada
 
 
 
@@ -144,35 +143,38 @@ axes[1, 1].imshow(img_mixto2)
 axes[1, 1].set_title("Combinación Mixta")
 axes[1, 1].axis("off")
 
-plt.tight_layout()
-plt.show()
+#plt.tight_layout()
+#plt.show()             Descomentar para ver la figura de la imagen 1 procesada
 
 
 # 3)    Compare los modos HS y L*c*h* utilizando mapeos m(h) equivalentes. Analice qué regiones 
 #       cambian, cómo cambia su apariencia y por qué los resultados no son necesariamente equivalentes.
 
-#   Sobre "img2.png", mantenemos puntos de control, aplicamos la función de saturación en modo LCH.
+#       mantenemos puntos de control, aplicamos la función de saturación en modo LCH.
 
 img_mixto3 = color_saturation(img1, P_mixto, "LCH")
 img_mixto4 = color_saturation(img2, P_mixto, "LCH")
 
-fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+fig, axes = plt.subplots(1, 2, figsize=(15, 7))
 
-axes[0, 0].imshow(img_mixto1)
-axes[0, 0].set_title("Imagen 1 HSL")
-axes[0, 0].axis("off")
+axes[0].imshow(img_mixto1)
+axes[0].set_title("Imagen 1 HSL")
+axes[0].axis("off")
 
-axes[0, 1].imshow(img_mixto3)
-axes[0, 1].set_title("Imagen 1 LCH")
-axes[0, 1].axis("off")
+axes[1].imshow(img_mixto3)
+axes[1].set_title("Imagen 1 LCH")
+axes[1].axis("off")
 
-axes[1, 0].imshow(img_mixto2)
-axes[1, 0].set_title("Imagen 2 HSL")
-axes[1, 0].axis("off")
+#axes[0].imshow(img_mixto2)
+#axes[0].set_title("Imagen 2 HSL")
+#axes[0].axis("off")
 
-axes[1, 1].imshow(img_mixto4)
-axes[1, 1].set_title("Imagen 2 LCH")
-axes[1, 1].axis("off")
+#axes[1].imshow(img_mixto4)
+#axes[1].set_title("Imagen 2 LCH")
+#axes[1].axis("off")
 
-plt.tight_layout()
-plt.show()
+#plt.tight_layout()
+#plt.show()             Descomentar para ver la figura de la imagen 1 procesada en HSL y LCH
+
+
+
