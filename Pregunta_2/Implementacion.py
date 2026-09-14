@@ -35,7 +35,7 @@ def calcular_cdfs(img_gris, C, Hr, Wr):
     # Estandarización a 8 bits para asegurar 256 bins exactos
     if img_gris.dtype != np.uint8:
         if img_gris.max() <= 1.0:
-            img_calc = (img_gris * 255).astype(np.uint8)
+            img_calc = np.round((img_gris * 255)).astype(np.uint8)
         else:
             img_calc = img_gris.astype(np.uint8)
     else:
@@ -72,3 +72,11 @@ def calcular_cdfs(img_gris, C, Hr, Wr):
         cdfs_locales[(y_c, x_c)] = cdf_norm
         
     return cdfs_locales, img_calc
+
+
+def aplicar_interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x):
+    img_eq = np.zeros_like(img_calc, dtype=np.float32)
+    
+    
+            
+            
