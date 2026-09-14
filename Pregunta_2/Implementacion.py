@@ -83,7 +83,6 @@ def aplicar_interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x)
     
     for i in range(len(y_lim) - 1):
         y_ini, y_fin = y_lim[i], y_lim[i+1]
-        if y_ini == y_fin: continue # Caso borde 
         
         # Determinar los centros y1, y2 que encierran elbloque
         c_y1 = centros_y[max(0, i - 1)]
