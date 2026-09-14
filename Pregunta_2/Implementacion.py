@@ -77,6 +77,67 @@ def calcular_cdfs(img_gris, C, Hr, Wr):
 def aplicar_interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x):
     img_eq = np.zeros_like(img_calc, dtype=np.float32)
     
+    # Añadimos los bordes
+    y_lim = [0] + centros_y + [img_calc.shape[0]]
+    x_lim = [0] + centros_x + [img_calc.shape[1]]
     
+    for i in range(len(y_lim) - 1):
+        y_ini, y_fin = y_lim[i], y_lim[i+1]
+        if y_ini == y_fin: continue # Caso borde 
+        
+        # Determinar los centros y1, y2 que encierran elbloque
+        c_y1 = centros_y[max(0, i - 1)]
+        c_y2 = centros_y[min(len(centros_y) - 1, i)]
+        
+        for j in range(len(x_lim) - 1):
+            x_ini, x_fin = x_lim[j], x_lim[j+1]
+            if x_ini == x_fin: continue
+            
+            # lo mismo pero con x
+            c_x1 = centros_x[max(0, j - 1)]
+            c_x2 = centros_x[min(len(centros_x) - 1, j)]
+            
+            # obtenemos el bloque inicial
+            blq = img_calc[y_ini:y_fin, x_ini:x_fin]
+            
+            # Recuperación de las 4 distribuciones desde nuestro diccionario
+            cdf_11 = cdfs_locales[(c_y1, c_x1)]
+            cdf_12 = cdfs_locales[(c_y1, c_x2)]
+            cdf_21 = cdfs_locales[(c_y2, c_x1)]
+            cdf_22 = cdfs_locales[(c_y2, c_x2)]
+            
+            # Mapeo simultáneo de todo el bloque 
+            v_11 = cdf_11[blq]
+            v_12 = cdf_12[blq]
+            v_21 = cdf_21[blq]
+            v_22 = cdf_22[blq]
+            
+            
+            y_coords = np.arange(y_ini, y_fin)
+            if c_y1 == c_y2:  # Borde superior o inferior 
+                ty = np.zeros_like(y_coords, dtype=np.float32)
+            else:
+                ty = (y_coords - c_y1) / (c_y2 - c_y1)
+                
+            x_coords = np.arange(x_ini, x_fin)
+            if c_x1 == c_x2:  # Borde del lado
+                tx = np.zeros_like(x_coords, dtype=np.float32)
+            else:
+                tx = (x_coords - c_x1) / (c_x2 - c_x1)
+                
+            # Ajuste pa mutiplicar
+            TY = ty[:, np.newaxis]
+            TX = tx[np.newaxis, :]
+            
+            # Ec de Interpolación Bilineal
+            interp_y1 = v_11 * (1 - TX) + v_12 * TX
+            interp_y2 = v_21 * (1 - TX) + v_22 * TX
+            interp_final = interp_y1 * (1 - TY) + interp_y2 * TY
+            
+            #resultado al arreglo
+            img_eq[y_ini:y_fin, x_ini:x_fin] = interp_final
+            
+    return np.round(img_eq).astype(np.uint8)
+
             
             
