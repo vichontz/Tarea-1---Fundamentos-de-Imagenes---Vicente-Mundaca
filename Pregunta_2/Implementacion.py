@@ -29,7 +29,7 @@ def generar_malla(M, N, Hr, Wr, alpha):
 
 
 
-def calcular_cdfs(img_gris, C, Hr, Wr):
+def calcular_cdfs(img_gris, C, Hr, Wr, clip_l = 0):
     cdfs_locales = {}
     
     # Estandarización a 8 bits para asegurar 256 bins exactos
@@ -40,6 +40,9 @@ def calcular_cdfs(img_gris, C, Hr, Wr):
             img_calc = img_gris.astype(np.uint8)
     else:
         img_calc = img_gris.copy()
+
+    N_prom = (Hr * Wr) / 256.0 
+    limite = clip_l * N_prom
 
     # Iteración sobre centros
     for y_c, x_c in C:
@@ -56,7 +59,38 @@ def calcular_cdfs(img_gris, C, Hr, Wr):
         
         # Cálculo del histograma y la Función de Distribución Acumulada
         hist, _ = np.histogram(parche.flatten(), bins=256, range=(0, 256))
-        cdf = hist.cumsum()
+
+        #  -- Nuevo (para inducir el clipeo) --
+        if clip_l > 0:
+
+            exceso = np.maximum(hist - limite, 0).sum()
+            
+            #   clipear peaks
+            hist_clipeado = np.minimum(hist, limite)
+            
+            #   Redistribuir exceso 
+            incremento_base = exceso // 256
+            hist_clipeado += incremento_base
+            
+            #   Repartir residuo 
+            resto = exceso % 256
+            if resto > 0:
+                #   Distribuir resto
+                paso = 256 / resto
+                indices = np.round(np.arange(0, 256, paso)[:int(resto)]).astype(int)
+                #   Porisacaso
+                indices = np.minimum(indices, 255) 
+                hist_clipeado[indices] += 1
+                
+            hist_usar = hist_clipeado
+        else:
+            # Si clip_limit es 0 o neg, tenemos el normal
+            hist_usar = hist
+
+        #       --Fin de lo nuevo--
+
+
+        cdf = hist_usar.cumsum()
         
         # Normalización de la CDF al rango de intensidades [0, 255]
         cdf_min = cdf[cdf > 0].min() if cdf.max() > 0 else 0
@@ -140,8 +174,11 @@ def interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x):
     return np.round(img_eq).astype(np.uint8)
 
             
-def ecualizacion(img, Hr, Wr, alpha):
+def ecualizacion(img, Hr, Wr, alpha, clip=0):
     M, N = img.shape
     C, centros_y, centros_x, Hr, Wr = generar_malla(M, N, Hr, Wr, alpha)
-    cdfs, img_calc = calcular_cdfs(img, C, Hr, Wr)
+    cdfs, img_calc = calcular_cdfs(img, C, Hr, Wr, clip)
     return interpolacion_bilineal(img_calc, cdfs, centros_y, centros_x)
+
+
+
