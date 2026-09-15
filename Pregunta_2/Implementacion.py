@@ -24,7 +24,7 @@ def generar_malla(M, N, Hr, Wr, alpha):
     # Creamos las tuplas correspondientes a los centros
     C = [(y_c, x_c) for y_c in centros_y for x_c in centros_x]
     
-    return C, centros_y, centros_x
+    return C, centros_y, centros_x, Hr, Wr
 
 
 
@@ -74,7 +74,7 @@ def calcular_cdfs(img_gris, C, Hr, Wr):
     return cdfs_locales, img_calc
 
 
-def aplicar_interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x):
+def interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x):
     img_eq = np.zeros_like(img_calc, dtype=np.float32)
     
     # Añadimos los bordes
@@ -129,7 +129,7 @@ def aplicar_interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x)
             TY = ty[:, np.newaxis]
             TX = tx[np.newaxis, :]
             
-            # Ec de Interpolación Bilineal
+            # Ec de Interpolación Bilineal  
             interp_y1 = v_11 * (1 - TX) + v_12 * TX
             interp_y2 = v_21 * (1 - TX) + v_22 * TX
             interp_final = interp_y1 * (1 - TY) + interp_y2 * TY
@@ -140,4 +140,8 @@ def aplicar_interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x)
     return np.round(img_eq).astype(np.uint8)
 
             
-            
+def ecualizacion(img, Hr, Wr, alpha):
+    M, N = img.shape
+    C, centros_y, centros_x, Hr, Wr = generar_malla(M, N, Hr, Wr, alpha)
+    cdfs, img_calc = calcular_cdfs(img, C, Hr, Wr)
+    return interpolacion_bilineal(img_calc, cdfs, centros_y, centros_x)
