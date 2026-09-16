@@ -91,8 +91,7 @@ def calcular_cdfs(img_gris, C, Hr, Wr, clip_l = 0):
 
 
         cdf = hist_usar.cumsum()
-        
-        # Normalización de la CDF al rango de intensidades [0, 255]
+
         cdf_min = cdf[cdf > 0].min() if cdf.max() > 0 else 0
         rango_cdf = cdf.max() - cdf_min
         
