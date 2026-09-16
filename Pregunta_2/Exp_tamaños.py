@@ -1,14 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
 from pathlib import Path
 
-from skimage import exposure
+from skimage import exposure, color
 from skimage.io import imread
 
-from Pregunta_1.RGB2HSL import rgb_to_hsl, hsl_to_rgb
 from Implementacion import ecualizacion
-
-
 
 if __name__ == "__main__":
     img1_path = Path(__file__).resolve().parent / "P2_IMG_2423.tif"
@@ -16,41 +14,33 @@ if __name__ == "__main__":
     if img1.shape[-1] == 4:
         img1 = img1[:, :, :3]
         
-    M_img, N_img = img1.shape[:2]
+    img1_f = img1.astype(np.float64)
+    img1_f = (img1_f - img1_f.min()) / (img1_f.max() - img1_f.min())
 
-    # Separación de canales de color
-    hsl_img = rgb_to_hsl(img1)
-    H = hsl_img[:, :, 0]
-    S = hsl_img[:, :, 1]
-    L = hsl_img[:, :, 2]  # L está en rango [0.0, 1.0]
+    img_g = np.round(color.rgb2gray(img1_f) * 255).astype(np.uint8)
+    M, N = img_g.shape
 
-    # Evaluación del conjunto E_global
-    L_global_8bit = ecualizacion(L, M_img, N_img, alpha=0, clip=0)
-    img_global = hsl_to_rgb(H, S, L_global_8bit / 255.0)
+    Hr, Wr = M // 8, N // 8
 
-    # Evaluación del conjunto E_local
-    Hr_loc, Wr_loc = M_img // 8, N_img // 8
-    L_local_8bit = ecualizacion(L, Hr_loc, Wr_loc, alpha=0, clip=0)
-    img_local_libre = hsl_to_rgb(H, S, L_local_8bit / 255.0)
+    # global:
+    img_global = ecualizacion(img_g, M, N, alpha=0, clip=0)
 
-    # Evaluación del conjunto E_limitado
-    L_propuesta_8bit = ecualizacion(L, Hr_loc, Wr_loc, alpha=0, clip=3.0)
-    img_propuesta = hsl_to_rgb(H, S, L_propuesta_8bit / 255.0)
+    # local sin solapamiento.
+    img_l = ecualizacion(img_g, Hr, Wr, alpha=0, clip=0)
 
-    # Comparación con implementación externa CLAHE
-    # Se utiliza clip_limit=0.03 como un equivalente estándar normalizado
-    L_clahe = exposure.equalize_adapthist(L, kernel_size=(Hr_loc, Wr_loc), clip_limit=0.03)
-    img_clahe_ref = hsl_to_rgb(H, S, L_clahe)
+    # local sin solapamiento, con clipeo
+    img_clip = ecualizacion(img_g, Hr, Wr, alpha=0, clip=7.0)
 
-    # Renderizado de los resultados
+    # Comparación externa CLAHE
+    img_clahe = exposure.equalize_adapthist(img_g, kernel_size=(Hr, Wr), clip_limit=0.03) # Se utiliza clip_limit=0.03 como un equivalente estándar 
+    
+    # Renderizado de resultados
     fig, axes = plt.subplots(1, 5, figsize=(22, 5))
-    titulos = ["Original", "Global Clásica", "Local No Limitada", "Propuesta Limitada", "CLAHE Referencia"]
-    imagenes = [img1, img_global, img_local_libre, img_propuesta, img_clahe_ref]
+    titulos = ["Original", "Global", "Local No Limitada", "Local Limitada", "CLAHE"]
+    imagenes = [img_g, img_global, img_l, img_clip, img_clahe]
 
     for ax, imagen, titulo in zip(axes, imagenes, titulos):
-        # Aseguramos que la imagen esté recortada al rango válido de visualización
-        img_visual = np.clip(imagen, 0, 1) if imagen.dtype != np.uint8 else imagen
-        ax.imshow(img_visual)
+        ax.imshow(imagen, cmap = "gray")
         ax.set_title(titulo)
         ax.axis('off')
 
