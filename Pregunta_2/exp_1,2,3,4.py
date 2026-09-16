@@ -34,8 +34,9 @@ def ecualizacion_global_directa(img):
     return cdf_norm[img].astype(np.uint8)
 
 if __name__ == "__main__":
-    print("escriba 1 para ver grafico 1 del informe")
-    print("escriba 2 para ver grafico 2 del informe")
+    print("escriba 1 para ver el experimento 1 del informe")
+    print("escriba 2 para ver el experimento 2 del informe")
+    print("escriba 3 para ver el experimento 3 del informe")
     accion = int(input())
 
     M, N = img_g.shape
@@ -73,7 +74,7 @@ if __name__ == "__main__":
 
 
 
-#   ----    Codigo Experimento 2.2  tamaño de las regiones:   ----
+#   ----    Codigo Experimento 2.2  tamaño de las regiones y overleap:   ----
 
 
     elif accion == 2:
@@ -139,6 +140,27 @@ if __name__ == "__main__":
         plt.show()    
 
 
-#   ----    Codigo Experimento 2.2  tamaño de las regiones:   ----    
+#   ----    Codigo Experimento 2.3  cantidad de bins:   ----    
     elif accion == 3:
-        
+        bins_lista = [ 16, 64, 128, 256]
+        tamaños = [32, 128, Wr_base]
+
+        for tamano in tamaños:
+            resultados = []
+            titulos = []
+
+            for bins in bins_lista:
+                resultado = ecualizacion(img_g, Hr=tamano, Wr=tamano, alpha=0.5, clip=0, bins=bins)
+                resultados.append(resultado)
+                titulos.append(f"{bins} bins")
+
+            fig, axes = plt.subplots(1, len(resultados), figsize=(20, 4))
+
+            for ax, imagen, titulo in zip(axes, resultados, titulos):
+                ax.imshow(imagen, cmap="gray", vmin=0, vmax=255)
+                ax.set_title(titulo)
+                ax.axis("off")
+
+            plt.suptitle(f"Exp 2.3 - Número de bins, región {tamano}x{tamano}")
+            plt.tight_layout()
+            plt.show()
