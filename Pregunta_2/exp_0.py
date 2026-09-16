@@ -19,6 +19,7 @@ if __name__ == "__main__":
 
     img_g = np.round(color.rgb2gray(img1_f) * 255).astype(np.uint8)
     M, N = img_g.shape
+  
 
     Hr, Wr = M // 8, N // 8
 
@@ -29,10 +30,10 @@ if __name__ == "__main__":
     img_l = ecualizacion(img_g, Hr, Wr, alpha=0, clip=0)
 
     # local sin solapamiento, con clipeo
-    img_clip = ecualizacion(img_g, Hr, Wr, alpha=0, clip=7.0)
+    img_clip = ecualizacion(img_g, Hr, Wr, alpha=0, clip=20.0)
 
     # Comparación externa CLAHE
-    img_clahe = exposure.equalize_adapthist(img_g, kernel_size=(Hr, Wr), clip_limit=0.03) # Se utiliza clip_limit=0.03 como un equivalente estándar 
+    img_clahe = exposure.equalize_adapthist(img_g, kernel_size=(Hr, Wr), clip_limit=0.1) 
     
     # Renderizado de resultados
     fig, axes = plt.subplots(1, 5, figsize=(22, 5))
@@ -44,5 +45,8 @@ if __name__ == "__main__":
         ax.set_title(titulo)
         ax.axis('off')
 
+        
     plt.tight_layout()
     plt.show()
+
+

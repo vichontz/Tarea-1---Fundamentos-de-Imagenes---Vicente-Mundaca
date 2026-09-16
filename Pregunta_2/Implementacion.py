@@ -29,81 +29,93 @@ def generar_malla(M, N, Hr, Wr, alpha):
 
 
 
-def calcular_cdfs(img_gris, C, Hr, Wr, clip_l = 0):
+def calcular_cdfs(img_gris, C, Hr, Wr, clip_l=0, bins=256):
+
     cdfs_locales = {}
-    
-    # Estandarización a 8 bits para asegurar 256 bins exactos
+
     if img_gris.dtype != np.uint8:
         if img_gris.max() <= 1.0:
-            img_calc = np.round((img_gris * 255)).astype(np.uint8)
+            img_calc = np.round(img_gris * 255).astype(np.uint8)
         else:
             img_calc = img_gris.astype(np.uint8)
     else:
         img_calc = img_gris.copy()
 
-    N_prom = (Hr * Wr) / 256.0 
+    N_prom = (Hr * Wr) / bins
     limite = clip_l * N_prom
 
-    # Iteración sobre centros
     for y_c, x_c in C:
-    
-        # Definimos las fronteras
+
         x_in = x_c - Wr // 2
         x_fin = x_in + Wr
+
         y_in = y_c - Hr // 2
         y_fin = y_in + Hr
-        
 
-        # Creamos el bloque
         parche = img_calc[y_in:y_fin, x_in:x_fin]
-        
-        # Cálculo del histograma y la Función de Distribución Acumulada
-        hist, _ = np.histogram(parche.flatten(), bins=256, range=(0, 256))
 
-        #  -- Nuevo (para inducir el clipeo) --
+        hist, _ = np.histogram(
+            parche.flatten(),
+            bins=bins,
+            range=(0, 256)
+        )
+
         if clip_l > 0:
 
             exceso = np.maximum(hist - limite, 0).sum()
-            
-            #   clipear peaks
+
             hist_clipeado = np.minimum(hist, limite)
-            
-            #   Redistribuir exceso 
-            incremento_base = exceso // 256
+
+            incremento_base = int(exceso // bins)
             hist_clipeado += incremento_base
-            
-            #   Repartir residuo 
-            resto = exceso % 256
+
+            resto = int(exceso % bins)
+
             if resto > 0:
-                #   Distribuir resto
-                paso = 256 / resto
-                indices = np.round(np.arange(0, 256, paso)[:int(resto)]).astype(int)
-                #   Porisacaso
-                indices = np.minimum(indices, 255) 
+                indices = np.linspace(
+                    0,
+                    bins - 1,
+                    resto,
+                    dtype=int
+                )
+
                 hist_clipeado[indices] += 1
-                
+
             hist_usar = hist_clipeado
+
         else:
-            # Si clip_limit es 0 o neg, tenemos el normal
             hist_usar = hist
-
-        #       --Fin de lo nuevo--
-
 
         cdf = hist_usar.cumsum()
 
         cdf_min = cdf[cdf > 0].min() if cdf.max() > 0 else 0
         rango_cdf = cdf.max() - cdf_min
-        
+
         if rango_cdf > 0:
-            cdf_norm = np.round((cdf - cdf_min) * 255 / rango_cdf).astype(np.uint8)
+
+            cdf_norm = np.round(
+                (cdf - cdf_min) * 255 / rango_cdf
+            ).astype(np.uint8)
+
         else:
-            # Caso borde (un solo color)
-            cdf_norm = np.arange(256, dtype=np.uint8)
-            
-        # Diccionario usando el centro como key
-        cdfs_locales[(y_c, x_c)] = cdf_norm
-        
+
+            cdf_norm = np.zeros(bins, dtype=np.uint8)
+
+        # Convertir los 256 niveles de intensidad
+        # al bin correspondiente
+        niveles = np.arange(256)
+
+        indices_bins = np.floor(
+            niveles * bins / 256
+        ).astype(int)
+
+        indices_bins = np.minimum(indices_bins, bins - 1)
+
+        # LUT de 256 niveles
+        lut = cdf_norm[indices_bins]
+
+        cdfs_locales[(y_c, x_c)] = lut
+
     return cdfs_locales, img_calc
 
 
@@ -173,10 +185,10 @@ def interpolacion_bilineal(img_calc, cdfs_locales, centros_y, centros_x):
     return np.round(img_eq).astype(np.uint8)
 
             
-def ecualizacion(img, Hr, Wr, alpha, clip=0):
+def ecualizacion(img, Hr, Wr, alpha, clip=0, bins=256):
     M, N = img.shape
     C, centros_y, centros_x, Hr, Wr = generar_malla(M, N, Hr, Wr, alpha)
-    cdfs, img_calc = calcular_cdfs(img, C, Hr, Wr, clip)
+    cdfs, img_calc = calcular_cdfs(img, C, Hr, Wr, clip, bins)
     return interpolacion_bilineal(img_calc, cdfs, centros_y, centros_x)
 
 
