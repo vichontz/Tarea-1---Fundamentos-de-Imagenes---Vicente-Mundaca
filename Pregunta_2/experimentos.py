@@ -266,23 +266,7 @@ if __name__ == "__main__":
         plt.tight_layout()
         plt.show()
 
+    elif accion == 8:
+        print("Esta está en aplicacion_extra.py")
 
-#   ----    Codigo Experimento 2.8  Exploración adicional:   ----   
-    #elif accion == 8:
-        tamanos = [16, 32, 64, 128, 256]
-        tiempos = []
-
-        for tamano in tamanos:
-            inicio = time.perf_counter()
-            ecualizacion(img_g, Hr=tamano, Wr=tamano, alpha=0.5, clip=0, bins=256)
-            fin = time.perf_counter()
-            tiempos.append(fin - inicio)
-
-        plt.figure(figsize=(8, 5))
-        plt.plot(tamanos, tiempos, marker="o")
-        plt.xlabel("Tamaño de región")
-        plt.ylabel("Tiempo [s]")
-        plt.title("Exp 2.9 - Costo computacional")
-        plt.grid()
-        plt.tight_layout()
-        plt.show()
+    else: print( "no ta ese")
